@@ -5,10 +5,15 @@ import java.util.Arrays;
 import java.util.StringTokenizer;
 import java.sql.Time;
 
+
 // Array<Time_Code_Caption> time_code_caption;
 
 
 public class Time_Code_Caption {	
+
+	final long ONE_SECOND = 1000;
+	final long ONE_MINUTE = ONE_SECOND * 60;
+	final long ONE_HOUR   = ONE_MINUTE * 60;
 
 	int eventIndex = 0;
 	
@@ -60,8 +65,8 @@ public class Time_Code_Caption {
 		String toStringTimeCode()
 		{
 			return  getEventID() + " " + 
-					getStartTime() + "."  + 
-					getEndTime() + "." +  
+			longTimeToString(getStartTime()) + "-->"  + 
+					longTimeToString(getEndTime()) + " = " +  
 					getCaption();
 		}
 		
@@ -71,19 +76,41 @@ public class Time_Code_Caption {
 			setStartTime(startTime);
 			setEndTime(	endTime);
 			setCaption(caption);
-			System.out.println(this.toStringTimeCode());
+			// System.out.println(this.toStringTimeCode());
 		}
 		
 	}
-final long ONE_SECOND = 1000;
-final long ONE_MINUTE = ONE_SECOND * 60;
-final long ONE_HOUR   = ONE_MINUTE * 60;
+	
+	String padZero(long value,int count)
+	{
+		String pad = "00000";
+		String c = ""+value;
+		int p = count - c.length();
+		
+		return pad.substring(0,p) + value;
+	}
+	
+	String longTimeToString(long time)
+	{
+		String value = "";
+		
+		long milliSeconds = time %  ONE_SECOND;
+		time = time/ONE_SECOND;
+		long seconds = time %  60;
+		time = time/60;
+		long minutes = time %  60;
+		time = time/60;
+		long hours = time %  60;
+		value = padZero(hours,2) + ":" + padZero(minutes,2) + ":" + padZero(seconds,2) + "." + padZero(milliSeconds,3);
+		return value;
+	}
+	
 	long timeToLong(String timeString)
 	{
 		long value = 0;
-		String hours = timeString.substring(0,1);
-		String minutes = timeString.substring(3,4);
-		String seconds = timeString.substring(6,7);
+		String hours = timeString.substring(0,2);
+		String minutes = timeString.substring(3,5);
+		String seconds = timeString.substring(6,8);
 		String milliSeconds = timeString.substring(9);
 		
 		value = Integer.parseInt(hours) * ONE_HOUR;
@@ -92,6 +119,7 @@ final long ONE_HOUR   = ONE_MINUTE * 60;
 		value += Integer.parseInt(milliSeconds) ;
 		return value;
 	}
+	
 	void parseLine(String theLine)
 	{
 //        System.out.println(theLine);
@@ -118,17 +146,18 @@ final long ONE_HOUR   = ONE_MINUTE * 60;
 	
 	void getNextEvent(long time, long offset)
 	{
-		System.out.println(time + " ---" + offset);
+//		System.out.println(longTimeToString(time) + " offset " + longTimeToString(offset));
 		
 		time=time-offset;
 		TimeCode nextEvent = events.get(eventIndex);
 		long nextTime = nextEvent.getStartTime();
 		
-		System.out.println(time + " ->" + nextTime);
+//		System.out.println(longTimeToString(time) + " ->" + longTimeToString(nextTime));
 		if (time>nextTime)
 		{
 			eventIndex++;
-			System.out.println(nextEvent.getEventID() + ":" + nextEvent.getStartTime() + " - " + nextEvent.getCaption());
+//			System.out.println(nextEvent.getEventID() + " : " + longTimeToString(nextEvent.getStartTime()) + " - " + nextEvent.getCaption());
+			System.out.println(nextEvent.getCaption());
 		}
 	}
 	void doIt(String filePath)
@@ -147,19 +176,19 @@ final long ONE_HOUR   = ONE_MINUTE * 60;
 	        catch (Exception e) {
 	          e.printStackTrace();
 	          }
-			long offsetTime = timeToLong("00:02:20.000");
+			long offsetTime = timeToLong("00:00:00.000");
 			
-			long nowTime = timeToLong("00:00:00.000");
+			long nowTime = timeToLong("00:04:00.000");
 			
 			while (true)
 			{
 				getNextEvent(nowTime, offsetTime);
-				long waitTime = System.currentTimeMillis()+(1000/30);
+				long waitTime = System.currentTimeMillis()+(ONE_SECOND/30);
 				while (waitTime>System.currentTimeMillis())
 				{
 					// nop until 1/30 of a second
 				}
-				nowTime=nowTime + (1000/30);
+				nowTime=nowTime + (ONE_SECOND/30);
 			}
 	       	}
 	
