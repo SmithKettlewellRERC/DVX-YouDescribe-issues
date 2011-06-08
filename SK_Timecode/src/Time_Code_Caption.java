@@ -17,44 +17,31 @@ public class Time_Code_Caption {
 	class TimeCode
 	{		
 		int 	eventID;
-		Time 	startTime;
-		int 	startFrame;
+		long 	startTime;
+//		int 	startFrame;
 		
-		Time 	endTime;
-		int 	endFrame;
+		long 	endTime;
+//		int 	endFrame;
 		
 		String 	caption;
 		String 	uri;
 		
-		public int getStartFrame() {
-			return startFrame;
-		}
-		public void setStartFrame(int startFrame) {
-			this.startFrame = startFrame;
-		}
-		public int getEndFrame() {
-			return endFrame;
-		}
-		public void setEndFrame(int endFrame) {
-			this.endFrame = endFrame;
-		}
-
 		public int getEventID() {
 			return eventID;
 		}
 		public void setEventID(int eventID) {
 			this.eventID = eventID;
 		}
-		public Time getStartTime() {
+		public long getStartTime() {
 			return startTime;
 		}
-		public void setStartTime(Time startTime) {
+		public void setStartTime(long startTime) {
 			this.startTime = startTime;
 		}
-		public Time getEndTime() {
+		public long getEndTime() {
 			return endTime;
 		}
-		public void setEndTime(Time endTime) {
+		public void setEndTime(long endTime) {
 			this.endTime = endTime;
 		}
 		public String getCaption() {
@@ -73,29 +60,38 @@ public class Time_Code_Caption {
 		String toStringTimeCode()
 		{
 			return  getEventID() + " " + 
-					getStartTime() + "." + getStartFrame() + " " + 
-					getEndTime() +"." + getEndFrame()+ " " + 
+					getStartTime() + "."  + 
+					getEndTime() + "." +  
 					getCaption();
 		}
 		
-		TimeCode(String eventId , String startTime, String endTime, String caption)
+		TimeCode(String eventId , long startTime, long endTime, String caption)
 		{
 			setEventID(Integer.parseInt(eventId));
-			setStartTime(	new Time(	Integer.parseInt(startTime.substring(1, 2)),
-										Integer.parseInt(startTime.substring(4, 5)),
-										Integer.parseInt(startTime.substring(7, 8))));
-			setStartFrame(Integer.parseInt(startTime.substring(9)));
-			setEndTime(	new Time(	Integer.parseInt(endTime.substring(1, 2)),
-					Integer.parseInt(endTime.substring(4, 5)),
-					Integer.parseInt(endTime.substring(7, 8))));
-			setEndFrame(Integer.parseInt(endTime.substring(9)));
+			setStartTime(startTime);
+			setEndTime(	endTime);
 			setCaption(caption);
 			System.out.println(this.toStringTimeCode());
 		}
 		
 	}
-
-	
+final long ONE_SECOND = 1000;
+final long ONE_MINUTE = ONE_SECOND * 60;
+final long ONE_HOUR   = ONE_MINUTE * 60;
+	long timeToLong(String timeString)
+	{
+		long value = 0;
+		String hours = timeString.substring(0,1);
+		String minutes = timeString.substring(3,4);
+		String seconds = timeString.substring(6,7);
+		String milliSeconds = timeString.substring(9);
+		
+		value = Integer.parseInt(hours) * ONE_HOUR;
+		value += Integer.parseInt(minutes) * ONE_MINUTE;
+		value += Integer.parseInt(seconds) * ONE_SECOND;
+		value += Integer.parseInt(milliSeconds) ;
+		return value;
+	}
 	void parseLine(String theLine)
 	{
 //        System.out.println(theLine);
@@ -109,7 +105,7 @@ public class Time_Code_Caption {
         String endTime=st.nextToken();
         String caption=st.nextToken();
         
-        TimeCode tc = new TimeCode(eventID, startTime, endTime, caption);
+        TimeCode tc = new TimeCode(eventID, timeToLong(startTime), timeToLong(endTime), caption);
         events.add(tc);
  /*    
      while(st.hasMoreTokens()){
@@ -120,16 +116,16 @@ public class Time_Code_Caption {
      System.out.println(); */
 	}
 	
-	void getNextEvent(Time time, Time offset)
+	void getNextEvent(long time, long offset)
 	{
 		System.out.println(time + " ---" + offset);
 		
-		time.setTime(time.getTime()-offset.getTime());
+		time=time-offset;
 		TimeCode nextEvent = events.get(eventIndex);
-		Time nextTime = nextEvent.getStartTime();
+		long nextTime = nextEvent.getStartTime();
 		
 		System.out.println(time + " ->" + nextTime);
-		if (time.after(nextTime))
+		if (time>nextTime)
 		{
 			eventIndex++;
 			System.out.println(nextEvent.getEventID() + ":" + nextEvent.getStartTime() + " - " + nextEvent.getCaption());
@@ -151,9 +147,9 @@ public class Time_Code_Caption {
 	        catch (Exception e) {
 	          e.printStackTrace();
 	          }
-			Time offsetTime = new Time(0);
+			long offsetTime = timeToLong("00:02:20.000");
 			
-			Time nowTime = new Time(0);
+			long nowTime = timeToLong("00:00:00.000");
 			
 			while (true)
 			{
@@ -163,7 +159,7 @@ public class Time_Code_Caption {
 				{
 					// nop until 1/30 of a second
 				}
-				nowTime.setTime(nowTime.getTime() + (1000/30)) ;
+				nowTime=nowTime + (1000/30);
 			}
 	       	}
 	
