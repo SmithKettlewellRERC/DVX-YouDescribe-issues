@@ -4,7 +4,7 @@ The DVX Project is developing software that allows sighted video viewers to seam
 
 The DVX project is evaluating: 1) the effectiveness of crowd-sourced audio description, 2) the effectiveness of automated digital tools for enhancing the presentation of amateur audio description, and 3) the effectiveness of using social networks and online communities for the recruitment of volunteer audio describers.
 
-For more information about The DVX Project, visit the Miele Lab and the VDRDC.
+For more information about The DVX Project, visit the [Miele Lab](http://www.mielelab.org/) and the [VDRDC](http://www.vdrdc.org/).
 
 This file was created May 25th, 2011 by Greg Ames
 
